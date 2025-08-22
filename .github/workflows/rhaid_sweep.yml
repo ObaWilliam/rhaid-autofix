@@ -10,13 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
+        with:
+          python-version: "3.11"
       - run: pipx install .
       - name: Run Rhaid (safe fixes)
         run: |
           rhaid --path . --mode fix --backup --rules "+format:*,+json:*,+yaml:*,+toml:*,+md:*,+mdx:*,+tf:*" --fix-only "+format:*,json:*,yaml:*,toml:*,md:*,mdx:*,tf:*"
       - name: Open PR with label
-        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pip install pygit2 || true
           python - <<'PY'
