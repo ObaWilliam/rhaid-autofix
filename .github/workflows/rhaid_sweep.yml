@@ -3,10 +3,12 @@ on:
   schedule:
     - cron: "17 3 * * 1"
   workflow_dispatch:
-permissions: write-all
 jobs:
   sweep:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,16 +23,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pip install pygit2 || true
-          python - <<'PY'
-import os, subprocess, datetime
-branch = f"rhaid/autofix-{datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
-subprocess.run(["git","checkout","-b",branch], check=True)
-subprocess.run(["git","add","-A"], check=True)
-c = subprocess.run(["git","commit","-m","rhaid: automated hygiene fixes"], capture_output=True, text=True)
-if c.returncode == 0:
-    subprocess.run(["git","push","--set-upstream","origin",branch], check=True)
-    subprocess.run(["gh","pr","create","--title","Rhaid: automated hygiene fixes","--body","Automated hygiene pass by Rhaid."], check=True)
-    subprocess.run(["gh","pr","edit","--add-label","rhaid:auto-fix"], check=False)
-else:
-    print("No changes to commit.")
-PY
+          python scripts/open_pr.py
