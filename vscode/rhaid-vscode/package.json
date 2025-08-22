@@ -1,0 +1,60 @@
+{
+  "name": "rhaid-vscode",
+  "displayName": "Rhaid Autofix",
+  "description": "Repo hygiene + AI guardrails. Diagnostics, quick fixes, fix-on-save.",
+  "version": "0.4.0",
+  "publisher": "camwood",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/camwood/rhaid-autofix"
+  },
+  "categories": [
+    "Linters"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rhaid.scanWorkspace",
+        "title": "Rhaid: Scan Workspace"
+      },
+      {
+        "command": "rhaid.fixCurrentFile",
+        "title": "Rhaid: Fix Current File"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Rhaid",
+      "properties": {
+        "rhaid.pathToBinary": {
+          "type": "string",
+          "default": "rhaid"
+        },
+        "rhaid.fixOnSave": {
+          "type": "boolean",
+          "default": false
+        },
+        "rhaid.scanArgs": {
+          "type": "string",
+          "default": "--json --rules \"+format:*,+json:*,+yaml:*,+toml:*,+md:*,+mdx:*,+tf:*\""
+        },
+        "rhaid.fixArgs": {
+          "type": "string",
+          "default": "--fix-only \"+format:*,json:*,yaml:*,toml:*,md:*,mdx:*,tf:*\""
+        }
+      }
+    }
+  },
+  "scripts": {
+    "package": "vsce package",
+    "publish": "vsce publish"
+  }
+}

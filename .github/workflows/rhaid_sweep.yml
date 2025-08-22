@@ -1,0 +1,34 @@
+name: Rhaid Sweep (Auto-fix PR)
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+permissions: write-all
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pipx install .
+      - name: Run Rhaid (safe fixes)
+        run: |
+          rhaid --path . --mode fix --backup --rules "+format:*,+json:*,+yaml:*,+toml:*,+md:*,+mdx:*,+tf:*" --fix-only "+format:*,json:*,yaml:*,toml:*,md:*,mdx:*,tf:*"
+      - name: Open PR with label
+        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        run: |
+          pip install pygit2 || true
+          python - <<'PY'
+import os, subprocess, datetime
+branch = f"rhaid/autofix-{datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+subprocess.run(["git","checkout","-b",branch], check=True)
+subprocess.run(["git","add","-A"], check=True)
+c = subprocess.run(["git","commit","-m","rhaid: automated hygiene fixes"], capture_output=True, text=True)
+if c.returncode == 0:
+    subprocess.run(["git","push","--set-upstream","origin",branch], check=True)
+    subprocess.run(["gh","pr","create","--title","Rhaid: automated hygiene fixes","--body","Automated hygiene pass by Rhaid."], check=True)
+    subprocess.run(["gh","pr","edit","--add-label","rhaid:auto-fix"], check=False)
+else:
+    print("No changes to commit.")
+PY

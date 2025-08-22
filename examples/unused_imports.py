@@ -1,0 +1,1 @@
+import os, sys\nfrom math import sqrt, ceil\n\nprint('hello')\n

@@ -1,0 +1,68 @@
+
+# Rhaid PR Check (Baseline-aware)
+# This workflow runs Rhaid Autofix on pull requests, using a baseline from the base branch.
+# Maintainers: You can configure Python version, install method, and Rhaid args below.
+
+name: Rhaid PR Check (Baseline-aware)
+on:
+  pull_request:
+    branches: [ main, master ]
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  RHAID_ARGS: "--json"
+  RHAID_INSTALL: "pipx"
+
+jobs:
+  rhaid-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout BASE (for baseline)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+      - name: Checkout HEAD
+        uses: actions/checkout@v4
+        with:
+          path: head
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install Rhaid (pipx)
+        run: |
+          python -m pip install pipx || true
+          python -m pipx ensurepath || true
+          pipx install ./head
+      # To use PyPI or Git install, change RHAID_INSTALL and add logic here
+      - name: Create baseline from BASE
+        run: |
+          cd base
+          rhaid --path . --mode scan ${{ env.RHAID_ARGS }} --write-baseline
+          cp rhaid_baseline.json ../head/rhaid_baseline.json
+      - name: Run Rhaid on PR (respect baseline)
+        run: |
+          cd head
+          rhaid --path . --mode scan ${{ env.RHAID_ARGS }} --gha-annotate --respect-baseline
+      - name: Label PR if issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd head
+          python3 -c "import json, os, subprocess; report = json.loads(os.popen('rhaid --path . --mode scan --json --respect-baseline').read() or '{\"issues\":[]}');
+if report.get('issues'):
+    subprocess.run(['gh','pr','edit', os.environ.get('PR_NUMBER','${{ github.event.number }}'), '--add-label', 'rhaid:needs-fix'], check=False)"
+      - name: Save Rhaid summary report
+        run: |
+          cd head
+          rhaid --path . --mode scan --json --respect-baseline > rhaid_report.json
+        continue-on-error: true
+      - name: Upload Rhaid report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rhaid-report
+          path: head/rhaid_report.json
