@@ -1,4 +1,3 @@
-
 # Rhaid PR Check (Baseline-aware)
 # This workflow runs Rhaid Autofix on pull requests, using a baseline from the base branch.
 # Maintainers: You can configure Python version, install method, and Rhaid args below.
@@ -53,9 +52,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd head
-          python3 -c "import json, os, subprocess; report = json.loads(os.popen('rhaid --path . --mode scan --json --respect-baseline').read() or '{\"issues\":[]}');
-if report.get('issues'):
-    subprocess.run(['gh','pr','edit', os.environ.get('PR_NUMBER','${{ github.event.number }}'), '--add-label', 'rhaid:needs-fix'], check=False)"
+          python ../../scripts/label_pr.py
       - name: Save Rhaid summary report
         run: |
           cd head
