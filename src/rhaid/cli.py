@@ -11,12 +11,12 @@ if src_path not in sys.path:
 if '--json' in sys.argv:
     os.environ['RHAID_RULE_DEBUG'] = '0'
 
-import argparse, os
+import argparse
+import os
 import rhaid.register_rules  # Centralized rule registration
 
 def main():
-    from rhaid.rules import _RULES, _FIXERS, run_rules, apply_fixers, filter_suppressions, load_plugins, debug_print
-    import rhaid.register_rules
+    from rhaid.rules import _RULES, run_rules, apply_fixers, filter_suppressions, load_plugins, debug_print
     rhaid.register_rules.register_all_rules()
     ap = argparse.ArgumentParser(description="Rhaid Lint")
     ap.add_argument("path", help="File to lint")

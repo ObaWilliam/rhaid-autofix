@@ -1,69 +1,49 @@
-<<<<<<< HEAD
+# Rhaid Autofix (rhaid) — v0.7.2
 
-# Rhaid v0.7.0 (Camwood Inc.)
+Rhaid Autofix by Camwood Inc. keeps repositories healthy by scanning for formatting, secrets, and policy issues, and safely applying automated fixes where available.
 
-## Why Rhaid is #1
+Highlights
 
-- **Comprehensive hygiene**: Scans and fixes Python, JS/TS, Markdown, TOML, Terraform, and more.
-- **AI guardrails**: Baseline-aware, suppressions, and smart fixers.
-- **Fast & scalable**: Parallel scanning, caching, and baseline support for large repos.
-- **Extensible**: Easy to add custom rules/fixers and plugins.
-- **Multi-platform**: CLI, VS Code extension, Gradio app, and CI/CD workflows.
-- **Open & documented**: MIT licensed, with developer guides and API docs.
+- Comprehensive repo hygiene: Python, JS/TS, Markdown/MDX, JSON, YAML, TOML, Terraform, and more
+- Baseline-aware: write and respect baseline files to suppress known issues
+- Fast & parallel: ThreadPoolExecutor scanning, optional caching, and CI-friendly output
+- Extensible: add rules and fixers with `@rule` / `@fixer`, and (future) plugin loading
+- Secure: no external code transfer unless LLM features are explicitly enabled
 
-## Usage Examples
+New in v0.7.2
 
-### CLI
-```sh
+- `--debug-stderr` flag and `RHAID_DEBUG_STDERR` environment variable to force debug traces to stderr even when `--json` is used. This preserves a clean JSON stdout stream for automation while still allowing diagnostic traces on stderr.
+- Fixes and internal improvements preparing for release v0.7.2.
+
+Quick examples
+
+CLI
+
+```powershell
 rhaid --path . --mode scan --json
 rhaid --path src/ --mode fix --backup --rules "+format:*,+json:*" --fix-only "+format:*"
 ```
 
-### VS Code Extension
-- Install from Marketplace or build from source.
-- Use "Rhaid: Scan Workspace" and "Rhaid: Fix Current File" commands.
-- Diagnostics and quick fixes in the editor.
+Force debug traces to stderr while preserving JSON on stdout:
 
-### Gradio App
-- Upload a ZIP or enter a Git repo URL.
-- Choose scan or fix mode, add extra args if needed.
-- Download results as JSON and ZIP.
+```powershell
+rhaid --path examples\secret_key.py --json --debug-stderr
+```
 
-### CI/CD (GitHub Actions)
-- Use `.github/workflows/rhaid_pr.yml` for baseline-aware PR checks.
-- Use `.github/workflows/rhaid_sweep.yml` for automated hygiene sweeps.
+VS Code Extension
 
-## Contributing & Extending
+- Use the provided extension in `vscode/rhaid-vscode` for editor diagnostics and quick fixes.
 
-- See `rhaid/rules.py` for rule/fixer API and examples.
-- Add new rules/fixers with the `@rule` and `@fixer` decorators.
-- For plugins, place your modules in a `plugins/` directory (future support).
+Contributing
+
+- Add rules and fixers in `src/rhaid/` with `@rule(id)` and `@fixer(id)`.
 - Run tests with `pytest`.
+- See `pyproject.toml` for packaging and versioning details.
 
+License
 
-## API Reference
-
-- `@rule(id: str)`: Decorator to register a rule. See `rhaid/rules.py`.
-- `@fixer(id: str)`: Decorator to register a fixer.
-- `load_plugins(plugin_dir: str)`: Dynamically load plugins.
-- `run_rules(path, content, ctx)`: Run all rules on file content.
-- `apply_fixers(path, content, issues, ctx)`: Apply all fixers to file content.
-
-## Troubleshooting
-
-- If the CLI or extension can't find the Rhaid binary, check your PATH or set `rhaid.pathToBinary`.
-- For Gradio app errors, ensure dependencies are installed and repo URLs are public.
-- For CI/CD, check workflow logs and the `rhaid_report.json` artifact for details.
-
-## Security & Privacy
-
-- No code is sent externally unless using LLM features.
-- Secret scanning covers AWS keys, GitHub PATs, and private keys; expand patterns as needed.
-- For sensitive code, run Rhaid locally or in your CI/CD.
-
----
 MIT License — (c) 2025 Camwood Inc.
-=======
-# rhaid-autofix
-Rhaid Autofix by Camwood Inc. keeps repos clean. It scans codebases and safely auto-fixes JSON/YAML/TOML/Markdown/MDX/Terraform &amp; Python/JS/TS imports. Outputs SARIF/PR; and baseline-aware. CI-native. Runs locally or in CI; no code leaves your environment. Open-core + Pro/Team/Enterprise.
->>>>>>> fe3662a357328ae96e51b382d77f8763f34789fb
+
+Artifacts
+
+- Built distributions are available in `dist/` after running the build step: `dist/rhaid-0.7.2-py3-none-any.whl` and `dist/rhaid-0.7.2.tar.gz`.

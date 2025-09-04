@@ -1,7 +1,7 @@
 \
-import ast, re
+import ast; import re
 from dataclasses import dataclass
-from typing import List, Tuple, Dict, Set
+from typing import List, Set
 from .results import RuleResult, FixResult
 
 # -------- Import-order (existing) --------
@@ -130,21 +130,20 @@ def _remove_from_line(line: str, names_to_remove: Set[str]) -> str:
     return line
 
 def r_py_unused_import(path, content, ctx):
-    import sys
     from .rules import debug_print
     debug_print(f"[TRACE py:unused_import] path={path} endswith .py={path.lower().endswith('.py')}")
     if not path.lower().endswith(".py"):
-        debug_print(f"[TRACE py:unused_import] skipped: not a .py file")
+        debug_print("[TRACE py:unused_import] skipped: not a .py file")
         return []
     try:
         tree=ast.parse(content)
     except Exception:
-        debug_print(f"[TRACE py:unused_import] skipped: syntax error")
+        debug_print("[TRACE py:unused_import] skipped: syntax error")
         return []  # syntax errors handled elsewhere
     s,e,block=_extract_top_import_block(content)
     debug_print(f"[TRACE py:unused_import] import block: s={s}, e={e}, block={block}")
     if s==-1:
-        debug_print(f"[TRACE py:unused_import] skipped: no import block")
+        debug_print("[TRACE py:unused_import] skipped: no import block")
         return []
     imports=_collect_imports(block)
     used=_collect_used_names(tree)
@@ -155,7 +154,7 @@ def r_py_unused_import(path, content, ctx):
         unused = [n for n in it.names if n not in used]
         debug_print(f"[TRACE py:unused_import] checking: {it.names}, unused: {unused}")
         if unused and len(unused) == len(it.names):
-            issues.append(RuleResult("py:unused_import", f"Unused import statement.", "warning", path, line=s+it.line_idx+1, col=1))
+            issues.append(RuleResult("py:unused_import", "Unused import statement.", "warning", path, line=s+it.line_idx+1, col=1))
         elif unused:
             issues.append(RuleResult("py:unused_import", f"Unused import names: {', '.join(unused)}", "warning", path, line=s+it.line_idx+1, col=1))
     debug_print(f"[TRACE py:unused_import] issues={issues}")

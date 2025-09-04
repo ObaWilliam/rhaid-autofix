@@ -1,9 +1,7 @@
-    # ...existing code...
-import sys
 from .results import RuleResult, FixResult
-import re
 
 _MD_EXTS = (".md", ".markdown", ".mdx")
+
 
 def _is_md(path: str) -> bool:
     return path.lower().endswith(_MD_EXTS)
@@ -18,7 +16,7 @@ def r_hspace(path: str, content: str, ctx: dict):
     from .rules import debug_print
     debug_print(f"[TRACE md:heading_space] path={path} is_md={_is_md(path)}")
     if not _is_md(path):
-        debug_print(f"[TRACE md:heading_space] skipped: not a markdown file")
+        debug_print("[TRACE md:heading_space] skipped: not a markdown file")
         return []
     out = []
     in_fence = False
@@ -39,8 +37,8 @@ def r_hspace(path: str, content: str, ctx: dict):
         hash_count = k - j
         if 1 <= hash_count <= 6:
             next_char = ln[k:k+1]
-            # Fix: allow headings with no space after #
-            if next_char and (not next_char.isspace() or next_char != ''):
+            # If there is a next character and it is not whitespace, flag it.
+            if next_char and not next_char.isspace():
                 out.append(RuleResult(
                     "md:heading_space",
                     "Missing space after '#' in heading.",
@@ -52,9 +50,11 @@ def r_hspace(path: str, content: str, ctx: dict):
     debug_print(f"[TRACE md:heading_space] issues={out}")
     return out
 
+
 def f_hspace(path: str, content: str, issues, ctx):
     if not issues:
         return FixResult(False, [], content)
+
     def _fix_line(line: str) -> str:
         j = 0
         while j < len(line) and line[j].isspace():
@@ -68,9 +68,11 @@ def f_hspace(path: str, content: str, issues, ctx):
             if next_char and not next_char.isspace():
                 return line[:k] + " " + line[k:]
         return line
+
     lines = content.splitlines(keepends=True)
     fixed = "".join(_fix_line(ln) for ln in lines)
     return FixResult(fixed != content, ["Inserted space after '#' in headings."], fixed)
+
 
 def r_fence(path: str, content: str, ctx: dict):
     if not _is_md(path):

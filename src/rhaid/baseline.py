@@ -1,4 +1,6 @@
-import os, json, hashlib
+import os
+import json
+import hashlib
 BASELINE_NAME="rhaid_baseline.json"
 def _root_dir(start:str)->str: import os; return os.path.abspath(start if os.path.isdir(start) else os.path.dirname(start))
 def _fp(path:str)->str: import os; return os.path.join(_root_dir(path), BASELINE_NAME)
@@ -14,9 +16,9 @@ def load_baseline(start_path:str)->set:
     try: return set(json.load(open(p,"r",encoding="utf-8")).get("fingerprints", []))
     except Exception: return set()
 def filter_new_against_baseline(start_path:str, flat:list)->list:
-    base=load_baseline(start_path); 
+    base=load_baseline(start_path) 
     if not base: return flat
-    keep=[]; 
+    keep=[] 
     for i in flat:
         fp=issue_fingerprint(i["path"], i["id"], i["message"])
         if fp not in base: keep.append(i)

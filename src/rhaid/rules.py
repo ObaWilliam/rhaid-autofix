@@ -5,9 +5,13 @@
 
 # rules.py
 
-from typing import Callable, List, Dict, Tuple, Optional
-import re, json, io, yaml, sys
-import os, glob, importlib.util
+from typing import Callable, List, Dict, Tuple
+import re
+import json
+import sys
+import os
+import glob
+import importlib.util
 from rhaid.results import RuleResult, FixResult
 
 
@@ -101,6 +105,19 @@ def run_rules(path: str, content: str, ctx: dict, registry=None) -> List[RuleRes
     """Run all registered rules on content."""
     if registry is None:
         registry = _RULES
+    # If no rules are currently registered, attempt a safe, idempotent
+    # registration so callers don't silently run with an empty registry.
+    if not registry:
+        try:
+            # Defer import to avoid circular imports at module import time.
+            import importlib
+            rr = importlib.import_module('rhaid.register_rules')
+            if hasattr(rr, 'register_all_rules'):
+                rr.register_all_rules()
+            registry = _RULES
+        except Exception:
+            # If auto-registration fails, continue with whatever we have.
+            pass
     res: List[RuleResult] = []
     debug_print(f"[engine] rules: {list(registry.keys())}")
     for rid, fn in registry.items():

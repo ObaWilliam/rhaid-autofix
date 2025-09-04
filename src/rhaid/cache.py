@@ -1,4 +1,6 @@
-import os, json, hashlib
+import os
+import json
+import hashlib
 CACHE_NAME = ".rhaid_cache.json"
 def _root(start: str) -> str:
     start = os.path.abspath(start if os.path.isdir(start) else os.path.dirname(start))

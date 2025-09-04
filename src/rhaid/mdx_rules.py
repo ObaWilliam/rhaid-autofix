@@ -5,7 +5,7 @@ def _is_mdx(path): return path.lower().endswith(".mdx")
 @rule("mdx:heading_space")
 def r_hspace(path, content, ctx):
     if not _is_mdx(path): return []
-    out=[]; 
+    out=[] 
     for i,ln in enumerate(content.splitlines(),1):
         if re.match(r"^#{1,6}\S", ln): out.append(RuleResult("mdx:heading_space","Missing space after '#' in heading.","info",path,line=i,col=1))
     return out
