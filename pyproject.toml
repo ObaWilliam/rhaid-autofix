@@ -1,6 +1,6 @@
 [project]
 name = "rhaid"
-version = "0.7.1"
+version = "0.7.2"
 description = "Rhaid Autofix — repo hygiene with smart AI guardrails"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -33,6 +33,11 @@ rhaid = "rhaid.cli:main"
 	"Gradio app: repo URL, authentication, rule selection",
 	"CI/CD: summary report artifact, improved YAML",
 	"Expanded documentation and API reference"
+]
+"0.7.2" = [
+	"Add --debug-stderr flag and RHAID_DEBUG_STDERR to force debug traces to stderr while --json is used",
+	"Bugfix: ensure debug traces are suppressed from stdout when --json is present by default",
+	"Prepare release v0.7.2"
 ]
 
 [tool.setuptools.packages.find]

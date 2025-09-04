@@ -2,7 +2,7 @@
 import ast, re
 from dataclasses import dataclass
 from typing import List, Tuple, Dict, Set
-from rhaid.rules import rule, fixer, RuleResult, FixResult
+from .results import RuleResult, FixResult
 
 # -------- Import-order (existing) --------
 def _extract_top_import_block(text: str):
@@ -26,7 +26,6 @@ def _sort_import_lines(lines):
     for idx in range(len(lines)): out.append(lines[idx] if idx in other else next(it))
     return out
 
-@rule("py:imports_order")
 def r_py_imports_order(path, content, ctx):
     if not path.lower().endswith(".py"): return []
     try: ast.parse(content)
@@ -38,7 +37,6 @@ def r_py_imports_order(path, content, ctx):
         return [RuleResult("py:imports_order","Top import block can be normalized (sorted).","info",path,line=s+1,col=1)]
     return []
 
-@fixer("py:imports_order")
 def f_py_imports_order(path, content, issues, ctx):
     if not issues: return FixResult(False, [], content)
     s,e,block=_extract_top_import_block(content)
@@ -69,6 +67,7 @@ def _collect_imports(block_lines: List[str]) -> List[_Import]:
             names=[]
             for p in parts:
                 if " as " in p:
+                    names.append(p.split(" as ")[0].strip())
                     names.append(p.split(" as ")[1].strip())
                 else:
                     names.append(p.split(".")[0])  # module root
@@ -81,6 +80,7 @@ def _collect_imports(block_lines: List[str]) -> List[_Import]:
             names=[]
             for p in parts:
                 if " as " in p:
+                    names.append(p.split(" as ")[0].strip())
                     names.append(p.split(" as ")[1].strip())
                 else:
                     names.append(p)
@@ -129,28 +129,38 @@ def _remove_from_line(line: str, names_to_remove: Set[str]) -> str:
         return head + " import " + ", ".join(keep) + ("\n" if not line.endswith("\n") else "")
     return line
 
-@rule("py:unused_import")
 def r_py_unused_import(path, content, ctx):
-    if not path.lower().endswith(".py"): return []
+    import sys
+    from .rules import debug_print
+    debug_print(f"[TRACE py:unused_import] path={path} endswith .py={path.lower().endswith('.py')}")
+    if not path.lower().endswith(".py"):
+        debug_print(f"[TRACE py:unused_import] skipped: not a .py file")
+        return []
     try:
         tree=ast.parse(content)
     except Exception:
+        debug_print(f"[TRACE py:unused_import] skipped: syntax error")
         return []  # syntax errors handled elsewhere
     s,e,block=_extract_top_import_block(content)
-    if s==-1: return []
+    debug_print(f"[TRACE py:unused_import] import block: s={s}, e={e}, block={block}")
+    if s==-1:
+        debug_print(f"[TRACE py:unused_import] skipped: no import block")
+        return []
     imports=_collect_imports(block)
     used=_collect_used_names(tree)
+    debug_print(f"[TRACE py:unused_import] imports={imports}")
+    debug_print(f"[TRACE py:unused_import] used={used}")
     issues=[]
     for it in imports:
-        unused=[n for n in it.names if n not in used]
-        if unused and len(unused)==len(it.names):
-            # whole statement unused
+        unused = [n for n in it.names if n not in used]
+        debug_print(f"[TRACE py:unused_import] checking: {it.names}, unused: {unused}")
+        if unused and len(unused) == len(it.names):
             issues.append(RuleResult("py:unused_import", f"Unused import statement.", "warning", path, line=s+it.line_idx+1, col=1))
         elif unused:
             issues.append(RuleResult("py:unused_import", f"Unused import names: {', '.join(unused)}", "warning", path, line=s+it.line_idx+1, col=1))
+    debug_print(f"[TRACE py:unused_import] issues={issues}")
     return issues
 
-@fixer("py:unused_import")
 def f_py_unused_import(path, content, issues, ctx):
     if not issues: return FixResult(False, [], content)
     s,e,block=_extract_top_import_block(content)
