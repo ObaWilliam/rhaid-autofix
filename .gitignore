@@ -1,2 +1,37 @@
-.env
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Logs and runtime files
+*.log
+logs/
+out_*.json
+
+# Pytest cache
+.pytest_cache/
+
+# Ruff temp
+ruff-temp.toml
+
+# Misc
+*.DS_Store
+
+# Local env files
+/.env
 licensing/server/.env
