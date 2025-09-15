@@ -1,4 +1,3 @@
-
 # Rhaid PR Check (Baseline-aware)
 # This workflow runs Rhaid Autofix on pull requests, using a baseline from the base branch.
 # Maintainers: You can configure Python version, install method, and Rhaid args below.
