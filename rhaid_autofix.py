@@ -8,6 +8,20 @@ except ImportError:
 from concurrent.futures import ThreadPoolExecutor
 from rhaid.config import Config, DEFAULT_INCLUDE, DEFAULT_EXCLUDE
 from rhaid.scanner import list_files
+import sys, os
+src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src'))
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+# If user passed --debug-stderr on the command line, set the env var early so imports
+# (which may import `rhaid.rules`) see the forced debug setting before module-level
+# registration happens.
+if '--debug-stderr' in sys.argv or os.environ.get('RHAID_DEBUG_STDERR', '').lower() in ('1','true','yes'):
+    os.environ['RHAID_DEBUG_STDERR'] = '1'
+# Remove any site-packages 'rhaid' from sys.modules to force local import
+for mod in list(sys.modules):
+    if mod.startswith('rhaid'):
+        del sys.modules[mod]
+import rhaid.rules  # Ensure all rules are registered from src/rhaid
 from rhaid.rules import run_rules, apply_fixers, filter_suppressions
 from rhaid.logging_utils import RunLogger
 from rhaid.cache import load_cache, save_cache, file_hash
@@ -57,7 +71,8 @@ def _allow(rule_id: str, globs: list, default: bool = True) -> bool:
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     ap = argparse.ArgumentParser(description="Rhaid Autofix — Camwood Inc.")
-    ap.add_argument('--path', required=True)
+    ap.add_argument('path', nargs='?', help='Path to file or directory to scan')
+    ap.add_argument('--path', dest='path_opt', help='Path to file or directory to scan (alternative to positional)')
     ap.add_argument('--mode', choices=['scan', 'fix'], default='scan')
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--include', default=None)
@@ -73,6 +88,7 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument('--use-cache', action='store_true')
     ap.add_argument('--write-baseline', action='store_true')
     ap.add_argument('--respect-baseline', action='store_true')
+    ap.add_argument('--debug-stderr', action='store_true', help='Force debug traces to stderr even when --json is used')
     return ap.parse_args()
 
 def get_file_list(cfg: Config) -> list:
@@ -82,20 +98,27 @@ def get_file_list(cfg: Config) -> list:
     return list_files(cfg.path, cfg.include, cfg.exclude)
 
 def scan_file(fp: str, cfg: Config, rglobs: list, cache: dict, use_cache: bool) -> tuple:
-    """Scan a single file and return results."""
     try:
         content = read(fp)
     except Exception as e:
         return {"event": "read_error", "path": fp, "error": str(e)}, None
+
     if len(content) > cfg.max_chars:
         return {"event": "skipped_large", "path": fp, "size": len(content)}, None
+
     h = file_hash(content)
     if use_cache and cache.get(fp) == h:
         return {"event": "cache_hit", "path": fp}, (fp, content, [])
-    issues = run_rules(fp, content, ctx={})
-    issues = filter_suppressions(content, issues)
+
+    # Load the rules module from the local package and execute rules.
+    import importlib as _importlib
+    _rules = _importlib.import_module('rhaid.rules')
+    issues = _rules.run_rules(fp, content, ctx={})
+    issues = _rules.filter_suppressions(content, issues)
+
     if rglobs:
         issues = [it for it in issues if _allow(it.id, rglobs, True)]
+
     return {"event": "scan", "path": fp, "issues": [it.__dict__ for it in issues]}, (fp, content, issues)
 
 def flatten_issues(results: list) -> list:
@@ -118,7 +141,9 @@ def apply_fixes(results: list, cfg: Config, fglobs: list, baseline_mod, args, lo
         tofix = [it for it in issues if _allow(it.id, fglobs, False)] if fglobs else issues
         if not tofix:
             continue
-        fixed, notes = apply_fixers(fp, content, tofix, ctx={})
+        # call the apply_fixers from the current rules module to avoid stale imports
+        _rules = __import__('rhaid.rules', fromlist=['apply_fixers'])
+        fixed, notes = _rules.apply_fixers(fp, content, tofix, ctx={})
         if fixed != content:
             if not args.dry_run:
                 write(fp, fixed)
@@ -146,8 +171,29 @@ def annotate_github(all_issues: list, HINTS: dict) -> None:
 
 def main() -> None:
     """Main entry point for Rhaid Autofix CLI."""
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
+    # Ensure logging uses stderr so we can keep stdout reserved for JSON output
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s', stream=sys.stderr)
+    # Register all rules before scanning
+    src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src'))
+    if src_path not in sys.path:
+        sys.path.insert(0, src_path)
+    try:
+        from rhaid.register_rules import register_all_rules
+        register_all_rules()
+    except ImportError as e:
+        print(f"Error importing/registering rules: {e}", file=sys.stderr)
+        sys.exit(1)
     args = parse_args()
+    # When JSON output is requested, raise the logging level to WARNING to avoid
+    # interleaving informational messages on stdout. Debug/traces are handled
+    # separately via debug_print and SUPPRESS_DEBUG in `rhaid.rules`.
+    if getattr(args, 'json', False):
+        logging.getLogger().setLevel(logging.WARNING)
+    # Support both --path and positional path
+    path = args.path_opt if getattr(args, 'path_opt', None) else args.path
+    if not path:
+        print("Error: Path to file or directory is required.", file=sys.stderr)
+        sys.exit(1)
     # License key from flag or env
     license_key = getattr(args, "license_key", None) or os.environ.get("RHAID_LICENSE_KEY")
     lic = resolve_license(license_key)
@@ -158,7 +204,7 @@ def main() -> None:
         sys.exit(2)
     include = [s.strip() for s in (args.include.split(',') if args.include else []) if s.strip()] or DEFAULT_INCLUDE
     exclude = [s.strip() for s in (args.exclude.split(',') if args.exclude else []) if s.strip()] or DEFAULT_EXCLUDE
-    cfg = Config(path=args.path, mode=args.mode, dry_run=args.dry_run, include=include, exclude=exclude,
+    cfg = Config(path=path, mode=args.mode, dry_run=args.dry_run, include=include, exclude=exclude,
                 backup=args.backup, llm_provider=args.llm_provider, model=args.model, max_chars=args.max_chars)
     files = get_file_list(cfg)
     logger = RunLogger(os.path.dirname(__file__))

@@ -1,0 +1,38 @@
+﻿FF                                                                       [100%]
+================================== FAILURES ===================================
+__________________________ test_md_heading_and_fence __________________________
+
+tmp_path = WindowsPath('C:/Users/User/AppData/Local/Temp/pytest-of-User/pytest-52/test_md_heading_and_fence0')
+
+    def test_md_heading_and_fence(tmp_path):
+        p = tmp_path / "doc.md"
+        text = (
+            "#NoSpace\n"
+            "## Has space\n"
+            "```py\n"
+            "# inside code #NoSpace\n"
+            "```\n"
+        )
+        issues = run_rules(str(p), text, {})
+        hits = [i for i in issues if i.id == "md:heading_space"]
+>       assert len(hits) == 1 and hits[0].line == 1
+E       assert (0 == 1)
+E        +  where 0 = len([])
+
+tests\test_markdown.py:16: AssertionError
+___________________________ test_md_unclosed_fence ____________________________
+
+tmp_path = WindowsPath('C:/Users/User/AppData/Local/Temp/pytest-of-User/pytest-52/test_md_unclosed_fence0')
+
+    def test_md_unclosed_fence(tmp_path):
+        p = tmp_path / "doc.md"
+        text = "# Title\n```\ncode\n"
+        issues = run_rules(str(p), text, {})
+>       assert any(i.id == "md:unclosed_fence" for i in issues)
+E       assert False
+E        +  where False = any(<generator object test_md_unclosed_fence.<locals>.<genexpr> at 0x0000024F987541E0>)
+
+tests\test_markdown.py:23: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_markdown.py::test_md_heading_and_fence - assert (0 == 1)
+FAILED tests/test_markdown.py::test_md_unclosed_fence - assert False

@@ -1,0 +1,60 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-8.4.1, pluggy-1.6.0 -- C:\Users\User\Desktop\Rhaid_Autofix\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\User\Desktop\Rhaid_Autofix
+configfile: pytest.ini
+plugins: anyio-4.10.0
+collecting ... collected 13 items
+
+licensing/server/test_stripe_webhook.py::test_stripe_webhook SKIPPED     [  7%]
+tests/test_dump_modules.py::test_dump_markdown_rules_modules PASSED      [ 15%]
+tests/test_markdown.py::test_md_heading_and_fence FAILED                 [ 23%]
+tests/test_markdown.py::test_md_unclosed_fence FAILED                    [ 30%]
+tests/test_py_unused_import.py::test_unused_import_detection PASSED      [ 38%]
+tests/test_registration.py::test_heading_rule_loaded_from_expected_file PASSED [ 46%]
+tests/test_rhaid_autofix_all.py::test_unused_import PASSED               [ 53%]
+tests/test_rhaid_autofix_all.py::test_formatting PASSED                  [ 61%]
+tests/test_rhaid_autofix_all.py::test_secrets PASSED                     [ 69%]
+tests/test_rhaid_autofix_all.py::test_markdown PASSED                    [ 76%]
+tests/test_rhaid_autofix_all.py::test_json PASSED                        [ 84%]
+tests/test_rhaid_autofix_all.py::test_baseline PASSED                    [ 92%]
+tests/test_smoke.py::test_ok PASSED                                      [100%]
+
+================================== FAILURES ===================================
+__________________________ test_md_heading_and_fence __________________________
+
+tmp_path = WindowsPath('C:/Users/User/AppData/Local/Temp/pytest-of-User/pytest-50/test_md_heading_and_fence0')
+
+    def test_md_heading_and_fence(tmp_path):
+        p = tmp_path / "doc.md"
+        text = (
+            "#NoSpace\n"
+            "## Has space\n"
+            "```py\n"
+            "# inside code #NoSpace\n"
+            "```\n"
+        )
+        issues = run_rules(str(p), text, {})
+        hits = [i for i in issues if i.id == "md:heading_space"]
+>       assert len(hits) == 1 and hits[0].line == 1
+E       assert (0 == 1)
+E        +  where 0 = len([])
+
+tests\test_markdown.py:16: AssertionError
+___________________________ test_md_unclosed_fence ____________________________
+
+tmp_path = WindowsPath('C:/Users/User/AppData/Local/Temp/pytest-of-User/pytest-50/test_md_unclosed_fence0')
+
+    def test_md_unclosed_fence(tmp_path):
+        p = tmp_path / "doc.md"
+        text = "# Title\n```\ncode\n"
+        issues = run_rules(str(p), text, {})
+>       assert any(i.id == "md:unclosed_fence" for i in issues)
+E       assert False
+E        +  where False = any(<generator object test_md_unclosed_fence.<locals>.<genexpr> at 0x0000029CCD65D970>)
+
+tests\test_markdown.py:23: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_markdown.py::test_md_heading_and_fence - assert (0 == 1)
+FAILED tests/test_markdown.py::test_md_unclosed_fence - assert False
+================== 2 failed, 10 passed, 1 skipped in 12.71s ===================
