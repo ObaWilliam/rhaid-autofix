@@ -1,0 +1,5 @@
+{
+  "fingerprints": [
+    "examples/minimal_unused_import.py:format:crlf:CRLF detected; prefer LF."
+  ]
+}

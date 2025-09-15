@@ -13,6 +13,8 @@ src/rhaid/logging_utils.py
 src/rhaid/markdown_rules.py
 src/rhaid/mdx_rules.py
 src/rhaid/python_ast_rules.py
+src/rhaid/register_rules.py
+src/rhaid/results.py
 src/rhaid/rules.py
 src/rhaid/scanner.py
 src/rhaid/secrets.py
@@ -24,5 +26,9 @@ src/rhaid.egg-info/dependency_links.txt
 src/rhaid.egg-info/entry_points.txt
 src/rhaid.egg-info/requires.txt
 src/rhaid.egg-info/top_level.txt
+tests/test_dump_modules.py
+tests/test_markdown.py
 tests/test_py_unused_import.py
+tests/test_registration.py
+tests/test_rhaid_autofix_all.py
 tests/test_smoke.py

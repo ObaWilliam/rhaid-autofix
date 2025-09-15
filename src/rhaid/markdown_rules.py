@@ -14,6 +14,7 @@ def r_hspace(path: str, content: str, ctx: dict):
     Ignore everything inside ``` fenced blocks.
     """
     from .rules import debug_print
+
     debug_print(f"[TRACE md:heading_space] path={path} is_md={_is_md(path)}")
     if not _is_md(path):
         debug_print("[TRACE md:heading_space] skipped: not a markdown file")
@@ -36,17 +37,19 @@ def r_hspace(path: str, content: str, ctx: dict):
             k += 1
         hash_count = k - j
         if 1 <= hash_count <= 6:
-            next_char = ln[k:k+1]
+            next_char = ln[k : k + 1]
             # If there is a next character and it is not whitespace, flag it.
             if next_char and not next_char.isspace():
-                out.append(RuleResult(
-                    "md:heading_space",
-                    "Missing space after '#' in heading.",
-                    "info",
-                    path,
-                    line=i,
-                    col=j+1
-                ))
+                out.append(
+                    RuleResult(
+                        "md:heading_space",
+                        "Missing space after '#' in heading.",
+                        "info",
+                        path,
+                        line=i,
+                        col=j + 1,
+                    )
+                )
     debug_print(f"[TRACE md:heading_space] issues={out}")
     return out
 
@@ -64,7 +67,7 @@ def f_hspace(path: str, content: str, issues, ctx):
             k += 1
         hash_count = k - j
         if 1 <= hash_count <= 6:
-            next_char = line[k:k+1]
+            next_char = line[k : k + 1]
             if next_char and not next_char.isspace():
                 return line[:k] + " " + line[k:]
         return line
@@ -79,5 +82,14 @@ def r_fence(path: str, content: str, ctx: dict):
         return []
     # Odd number of code fences means unclosed
     if content.count("```") % 2 != 0:
-        return [RuleResult("md:unclosed_fence", "Unbalanced ``` code fences.", "warning", path, line=1, col=1)]
+        return [
+            RuleResult(
+                "md:unclosed_fence",
+                "Unbalanced ``` code fences.",
+                "warning",
+                path,
+                line=1,
+                col=1,
+            )
+        ]
     return []

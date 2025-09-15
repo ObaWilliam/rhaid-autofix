@@ -1,0 +1,63 @@
+{
+  "total_issues": 4,
+  "baseline_fingerprints_count": 0,
+  "missing_count": 4,
+  "missing": [
+    {
+      "fingerprint": "b1487e6422976da172c5b3aea7176c502207355c",
+      "issue": {
+        "path": "C:\\Users\\User\\Desktop\\Rhaid_Autofix\\ci_head\\app.py",
+        "id": "py:syntax",
+        "message": "Python syntax error: invalid syntax (<unknown>, line 2)",
+        "severity": "error",
+        "line": 2,
+        "col": 27
+      }
+    },
+    {
+      "fingerprint": "a2e622669d4870275084ff5c251c64c777494a29",
+      "issue": {
+        "path": "C:\\Users\\User\\Desktop\\Rhaid_Autofix\\ci_head\\licensing\\server\\main.py",
+        "id": "py:syntax",
+        "message": "Python syntax error: invalid syntax (<unknown>, line 9)",
+        "severity": "error",
+        "line": 9,
+        "col": 22
+      }
+    },
+    {
+      "fingerprint": "b3cbf1312518618f764fee3050f83c3597b577c8",
+      "issue": {
+        "path": "C:\\Users\\User\\Desktop\\Rhaid_Autofix\\ci_head\\scripts\\open_pr.py",
+        "id": "py:unused_import",
+        "message": "Unused import statement.",
+        "severity": "warning",
+        "line": 1,
+        "col": 1
+      }
+    },
+    {
+      "fingerprint": "a28bb9a12aa1e1f84d7d69ddc58d7220f4238c6a",
+      "issue": {
+        "path": "C:\\Users\\User\\Desktop\\Rhaid_Autofix\\ci_head\\tests\\test_py_unused_import.py",
+        "id": "py:syntax",
+        "message": "Python syntax error: invalid syntax (<unknown>, line 1)",
+        "severity": "error",
+        "line": 1,
+        "col": 40
+      }
+    }
+  ],
+  "top_rules": [
+    {
+      "id": "py:syntax",
+      "count": 3,
+      "severity_weight": 9
+    },
+    {
+      "id": "py:unused_import",
+      "count": 1,
+      "severity_weight": 2
+    }
+  ]
+}

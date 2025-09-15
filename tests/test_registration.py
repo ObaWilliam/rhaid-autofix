@@ -1,6 +1,7 @@
 import inspect
 from rhaid.rules import _RULES
 
+
 def test_heading_rule_loaded_from_expected_file():
     fn = _RULES.get("md:heading_space")
     assert fn is not None, "md:heading_space not registered"

@@ -2,8 +2,8 @@
   "name": "rhaid-vscode",
   "displayName": "Rhaid Autofix",
   "description": "Repo hygiene + AI guardrails. Diagnostics, quick fixes, fix-on-save.",
-  "version": "0.4.0",
-  "publisher": "camwood",
+  "version": "0.4.1",
+  "publisher": "CamwoodInc",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -56,5 +56,25 @@
   "scripts": {
     "package": "vsce package",
     "publish": "vsce publish"
-  }
+  },
+  "keywords": [
+    "repo hygiene",
+    "ai guardrails",
+    "autofix",
+    "linter",
+    "code quality",
+    "security",
+    "automation",
+    "quick fix",
+    "diagnostics",
+    "devops",
+    "compliance",
+    "python",
+    "markdown",
+    "json",
+    "yaml",
+    "terraform",
+    "mdx",
+    "toml"
+  ]
 }
