@@ -1,7 +1,34 @@
 from dataclasses import dataclass, field
 from typing import List
-DEFAULT_INCLUDE = ["*.py","*.js","*.ts","*.jsx","*.tsx","*.json","*.yml","*.yaml","*.md","*.mdx","*.html","*.css",".env","*.toml","*.ini","*.tf"]
-DEFAULT_EXCLUDE = ["node_modules/**","dist/**","build/**",".git/**",".venv/**","__pycache__/**"]
+
+DEFAULT_INCLUDE = [
+    "*.py",
+    "*.js",
+    "*.ts",
+    "*.jsx",
+    "*.tsx",
+    "*.json",
+    "*.yml",
+    "*.yaml",
+    "*.md",
+    "*.mdx",
+    "*.html",
+    "*.css",
+    ".env",
+    "*.toml",
+    "*.ini",
+    "*.tf",
+]
+DEFAULT_EXCLUDE = [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".git/**",
+    ".venv/**",
+    "__pycache__/**",
+]
+
+
 @dataclass
 class Config:
     path: str

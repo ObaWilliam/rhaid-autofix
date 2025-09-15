@@ -1,0 +1,2 @@
+[exclude]
+paths = ["build", "dist", ".venv", ".venv/*"]
