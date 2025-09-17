@@ -1,19 +1,23 @@
 {
   "name": "rhaid-vscode",
   "displayName": "Rhaid Autofix",
-  "description": "Repo hygiene + AI guardrails. Diagnostics, quick fixes, fix-on-save.",
-  "version": "0.4.0",
-  "publisher": "camwood",
+  "description": "VS Code extension for Rhaid Autofix - scan and fix code issues in your workspace.",
+  "version": "1.0.0",
+  "publisher": "your-publisher-name",
   "engines": {
-    "vscode": "^1.84.0"
+    "vscode": "^1.74.0"
   },
-  "icon": "vscode/rhaid-vscode/icon.png",
+  "icon": "icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/camwood/rhaid-autofix"
+    "url": "https://github.com/your-repo/rhaid-autofix.git"
   },
+  "bugs": {
+    "url": "https://github.com/your-repo/rhaid-autofix/issues"
+  },
+  "license": "MIT",
   "categories": [
-    "Linters"
+    "Other"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -28,33 +32,59 @@
       {
         "command": "rhaid.fixCurrentFile",
         "title": "Rhaid: Fix Current File"
+      },
+      {
+        "command": "rhaid.enterLicenseKey",
+        "title": "Rhaid: Enter License Key"
+      },
+      {
+        "command": "rhaid.openSettings",
+        "title": "Rhaid: Open Settings"
       }
     ],
     "configuration": {
-      "type": "object",
       "title": "Rhaid",
       "properties": {
         "rhaid.pathToBinary": {
           "type": "string",
-          "default": "rhaid"
-        },
-        "rhaid.fixOnSave": {
-          "type": "boolean",
-          "default": false
+          "default": "rhaid",
+          "description": "Path to the Rhaid binary."
         },
         "rhaid.scanArgs": {
           "type": "string",
-          "default": "--json --rules \"+format:*,+json:*,+yaml:*,+toml:*,+md:*,+mdx:*,+tf:*\""
+          "default": "--json",
+          "description": "Arguments for Rhaid scan mode."
         },
         "rhaid.fixArgs": {
           "type": "string",
-          "default": "--fix-only \"+format:*,json:*,yaml:*,toml:*,md:*,mdx:*,tf:*\""
+          "default": "",
+          "description": "Arguments for Rhaid fix mode."
+        },
+        "rhaid.fixOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically fix on save."
+        },
+        "rhaid.licenseKey": {
+          "type": "string",
+          "default": "",
+          "description": "Rhaid Pro license key."
         }
       }
-    }
-  },
-  "scripts": {
-    "package": "vsce package",
-    "publish": "vsce publish"
+    },
+    "codeActions": [
+      {
+        "languages": [
+          "*"
+        ],
+        "actions": [
+          {
+            "kind": "quickfix",
+            "title": "Rhaid: Fix this file",
+            "command": "rhaid.fixCurrentFile"
+          }
+        ]
+      }
+    ]
   }
 }

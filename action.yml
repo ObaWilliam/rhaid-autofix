@@ -1,16 +1,24 @@
 name: "Rhaid Autofix"
-description: "Repo hygiene + AI guardrails — scan/fix with Rhaid by Camwood Inc."
+description: "Scan and fix code issues in your repository using Rhaid."
 branding:
   icon: "check-circle"
   color: "green"
 inputs:
   path:
-    description: "Path to scan"
-    required: true
-  mode:
-    description: "scan or fix"
+    description: "Path to scan/fix (default: .)"
     required: false
+    default: "."
+  mode:
+    description: "Mode: scan or fix"
+    required: true
     default: "scan"
+  rules:
+    description: "Rules (e.g., +format:*,+json:*)"
+    required: false
+  extra-args:
+    description: "Extra arguments for Rhaid"
+    required: false
+    default: "--use-cache"
   args:
     description: "Additional CLI args for Rhaid"
     required: false
@@ -30,39 +38,5 @@ inputs:
     required: false
     default: "3.11"
 runs:
-  using: "composite"
-  steps:
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ inputs.python-version }}
-
-    - name: Install pipx
-      shell: bash
-      run: |
-        python -m pip install -U pip pipx || true
-        python -m pipx ensurepath || true
-
-    - name: Install Rhaid
-      shell: bash
-      run: |
-        set -euo pipefail
-        case "${{ inputs.install }}" in
-          pipx_pypi) pipx install rhaid ;;
-          pipx_git)
-            if [ -z "${{ inputs.source_url }}" ]; then echo "source_url required"; exit 2; fi
-            REF="${{ inputs.source_ref || 'main' }}"
-            pipx install "git+${{ inputs.source_url }}@${REF}"
-            ;;
-          vendored)
-            pipx install ./rhaid_pkg
-            ;;
-          *)
-            echo "Unknown install method"; exit 2 ;;
-        esac
-
-    - name: Run Rhaid
-      shell: bash
-      run: |
-        set -euo pipefail
-        rhaid --path "${{ inputs.path }}" --mode "${{ inputs.mode }}" ${{ inputs.args }}
+  using: "docker"
+  image: "Dockerfile" # You'll need to create a Dockerfile
