@@ -52,9 +52,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd head
-          python3 -c "import json, os, subprocess; report = json.loads(os.popen('rhaid --path . --mode scan --json --respect-baseline').read() or '{\"issues\":[]}');
-if report.get('issues'):
-    subprocess.run(['gh','pr','edit', os.environ.get('PR_NUMBER','${{ github.event.number }}'), '--add-label', 'rhaid:needs-fix'], check=False)"
+          # Run Rhaid to get the report and check for issues
+          REPORT_OUTPUT=$(rhaid --path . --mode scan --json --respect-baseline)
+          # Parse the JSON report to check for issues
+          HAS_ISSUES=$(echo "$REPORT_OUTPUT" | jq -r '.issues | length > 0')
+
+          if [ "$HAS_ISSUES" = "true" ]; then
+            echo "Issues found. Adding 'rhaid:needs-fix' label."
+            # Use github.event.number for the pull request number
+            gh pr edit $GITHUB_EVENT_NUMBER --add-label "rhaid:needs-fix" --repo $GITHUB_REPOSITORY
+          else
+            echo "No issues found."
+          fi
       - name: Save Rhaid summary report
         run: |
           cd head
