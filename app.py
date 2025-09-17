@@ -1,4 +1,3 @@
-
 import gradio as gr
 import os, zipfile, tempfile, shutil, json, subprocess, sys, pathlib
 
@@ -92,6 +91,8 @@ with gr.Blocks() as demo:
         # Optionally use token for private repo access (future)
         return serve(zip_file, repo_url, mode, args)
     run.click(serve_with_auth, [up, repo, mode, rules, extra, auth], [out_json, out_zip])
+
+iface = gr.Interface(..., favicon_path="assets/icon.png")
 
 if __name__ == "__main__":
     demo.launch()
