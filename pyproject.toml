@@ -1,11 +1,11 @@
 [project]
 name = "rhaid"
-version = "0.7.1"
+version = "0.7.5"  // Updated to avoid PyPI version conflict
 description = "Rhaid Autofix — repo hygiene with smart AI guardrails"
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [{name="Camwood Inc."}]
-icon = "assets/icon.png"
+
 
 dependencies = [
 	"PyYAML>=6.0.1",

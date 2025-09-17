@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: rhaid
-Version: 0.7.1
+Version: 0.7.3
 Summary: Rhaid Autofix — repo hygiene with smart AI guardrails
 Author: Camwood Inc.
 Requires-Python: >=3.9
