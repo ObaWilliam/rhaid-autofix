@@ -1,6 +1,5 @@
-\
-import re
-from rhaid.rules import rule, fixer, RuleResult, FixResult
+import re from rhaid.rules
+import rule, fixer, RuleResult, FixResult
 
 _IMPORT = re.compile(r'^\s*(import\s.+?from\s+[\'"].+?[\'"];?|import\s+[\'"].+?[\'"];?)\s*$', re.MULTILINE)
 
