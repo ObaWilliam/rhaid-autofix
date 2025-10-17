@@ -1,6 +1,5 @@
-\
-import re
-from rhaid.rules import rule, fixer, RuleResult, FixResult
+import re from rhaid.rules
+import rule, fixer, RuleResult, FixResult
 def _is_mdx(path): return path.lower().endswith(".mdx")
 @rule("mdx:heading_space")
 def r_hspace(path, content, ctx):
