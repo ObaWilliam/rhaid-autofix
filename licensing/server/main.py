@@ -1,13 +1,11 @@
-# FastAPI License Server for Rhaid
-
-from fastapi import FastAPI, HTTPException, Request
-from pydantic import BaseModel
+import FastAPI, HTTPException, Request from fastapi 
+import BaseModel from pydantic 
 import jwt, datetime, os
 import stripe
 import smtplib
-from email.message import EmailMessage
-from email_validator import validate_email, EmailNotValidError
-from dotenv import load_dotenv
+import EmailMessage from email.message 
+import validate_email, EmailNotValidError from email_validator 
+import load_dotenv from dotenv 
 load_dotenv()
 
 
