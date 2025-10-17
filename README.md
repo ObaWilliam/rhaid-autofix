@@ -1,6 +1,8 @@
-<<<<<<< HEAD
+# rhaid-autofix
 
-# Rhaid v0.7.0 (Camwood Inc.)
+Rhaid Autofix by Camwood Inc. keeps repos clean. It scans codebases and safely auto-fixes JSON/YAML/TOML/Markdown/MDX/Terraform & Python/JS/TS imports. Outputs SARIF/PR; and baseline-aware. CI-native. Runs locally or in CI; no code leaves your environment. Open-core + Pro/Team/Enterprise.
+
+MIT License — (c) 2025 Camwood Inc. and Obashola Awoyinfa
 
 ## Why Rhaid is #1
 
@@ -40,7 +42,6 @@ rhaid --path src/ --mode fix --backup --rules "+format:*,+json:*" --fix-only "+f
 - For plugins, place your modules in a `plugins/` directory (future support).
 - Run tests with `pytest`.
 
-
 ## API Reference
 
 - `@rule(id: str)`: Decorator to register a rule. See `rhaid/rules.py`.
@@ -62,8 +63,3 @@ rhaid --path src/ --mode fix --backup --rules "+format:*,+json:*" --fix-only "+f
 - For sensitive code, run Rhaid locally or in your CI/CD.
 
 ---
-MIT License — (c) 2025 Camwood Inc.
-=======
-# rhaid-autofix
-Rhaid Autofix by Camwood Inc. keeps repos clean. It scans codebases and safely auto-fixes JSON/YAML/TOML/Markdown/MDX/Terraform &amp; Python/JS/TS imports. Outputs SARIF/PR; and baseline-aware. CI-native. Runs locally or in CI; no code leaves your environment. Open-core + Pro/Team/Enterprise.
->>>>>>> fe3662a357328ae96e51b382d77f8763f34789fb
